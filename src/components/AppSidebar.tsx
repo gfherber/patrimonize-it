@@ -81,7 +81,7 @@ export function AppSidebar() {
         <div className="flex flex-col items-center justify-center gap-3 w-full">
           <div className="flex items-center justify-center gap-4 text-gray-500">
             <a
-              href="https://instagram.com/SEU_USUARIO"
+              href="https://www.instagram.com/gf_herber/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-pink-500 transition-transform transform hover:scale-110"
@@ -89,7 +89,7 @@ export function AppSidebar() {
               <FaInstagram size={18} />
             </a>
             <a
-              href="https://github.com/SEU_USUARIO"
+              href="https://github.com/gfherber"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-900 transition-transform transform hover:scale-110"
@@ -97,7 +97,7 @@ export function AppSidebar() {
               <FaGithub size={18} />
             </a>
             <a
-              href="https://linkedin.com/in/SEU_USUARIO"
+              href="https://www.linkedin.com/in/gabriel-herber/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-blue-600 transition-transform transform hover:scale-110"

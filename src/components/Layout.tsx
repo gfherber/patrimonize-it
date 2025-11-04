@@ -102,7 +102,7 @@ export function Layout() {
             <div className="flex flex-col items-center gap-2">
               <div className="flex gap-4 text-gray-500">
                 <a
-                  href="https://instagram.com/seu_usuario"
+                  href="https://www.instagram.com/gf_herber/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-pink-500 transition-transform transform hover:scale-110"
@@ -110,7 +110,7 @@ export function Layout() {
                   <FaInstagram size={18} />
                 </a>
                 <a
-                  href="https://github.com/seu_usuario"
+                  href="https://github.com/gfherber"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gray-900 transition-transform transform hover:scale-110"
@@ -118,7 +118,7 @@ export function Layout() {
                   <FaGithub size={18} />
                 </a>
                 <a
-                  href="https://linkedin.com/in/seu_usuario"
+                  href="https://www.linkedin.com/in/gabriel-herber/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-blue-600 transition-transform transform hover:scale-110"
@@ -131,7 +131,7 @@ export function Layout() {
           ) : (
             <div className="flex flex-col items-center gap-3">
               <a
-                href="https://instagram.com/seu_usuario"
+                href="https://www.instagram.com/gf_herber/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-pink-500 transition-transform transform hover:scale-110"
@@ -139,7 +139,7 @@ export function Layout() {
                 <FaInstagram size={16} />
               </a>
               <a
-                href="https://github.com/seu_usuario"
+                href="https://github.com/gfherber"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gray-900 transition-transform transform hover:scale-110"
@@ -147,7 +147,7 @@ export function Layout() {
                 <FaGithub size={16} />
               </a>
               <a
-                href="https://linkedin.com/in/seu_usuario"
+                href="https://www.linkedin.com/in/gabriel-herber/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 transition-transform transform hover:scale-110"
