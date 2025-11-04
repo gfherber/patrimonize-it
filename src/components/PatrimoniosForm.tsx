@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface PatrimonioFormProps {

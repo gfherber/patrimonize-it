@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, DoorOpen, TrendingUp, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/client";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {

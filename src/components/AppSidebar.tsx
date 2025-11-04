@@ -1,9 +1,10 @@
-import { 
-  LayoutDashboard, 
-  Package, 
-  DoorOpen, 
+import {
+  LayoutDashboard,
+  Package,
+  DoorOpen,
   History,
-  Settings
+  CalendarDays,
+  Monitor,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -19,8 +20,12 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
+import { FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
+
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Início", url: "/", icon: LayoutDashboard },
+  { title: "Planejamento", url: "/planejamento", icon: CalendarDays },
+  { title: "Painel", url: "/painel", icon: Monitor },
   { title: "Patrimônios", url: "/patrimonios", icon: Package },
   { title: "Salas", url: "/salas", icon: DoorOpen },
   { title: "Histórico", url: "/historico", icon: History },
@@ -28,7 +33,8 @@ const menuItems = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r flex flex-col justify-between">
+      {/* Header */}
       <SidebarHeader className="border-b px-6 py-4">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
@@ -41,7 +47,8 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      {/* Conteúdo do menu */}
+      <SidebarContent className="flex-1 overflow-y-auto">
         <SidebarGroup>
           <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -69,9 +76,39 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
+      {/* Rodapé fixo com redes sociais */}
       <SidebarFooter className="border-t p-4">
-        <div className="text-xs text-muted-foreground">
-          © 2025 Sistema de Patrimônio
+        <div className="flex flex-col items-center justify-center gap-3 w-full">
+          <div className="flex items-center justify-center gap-4 text-gray-500">
+            <a
+              href="https://instagram.com/SEU_USUARIO"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-pink-500 transition-transform transform hover:scale-110"
+            >
+              <FaInstagram size={18} />
+            </a>
+            <a
+              href="https://github.com/SEU_USUARIO"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 transition-transform transform hover:scale-110"
+            >
+              <FaGithub size={18} />
+            </a>
+            <a
+              href="https://linkedin.com/in/SEU_USUARIO"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-600 transition-transform transform hover:scale-110"
+            >
+              <FaLinkedin size={18} />
+            </a>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground">
+            Desenvolvido pelo Gabriel Herber
+          </p>
         </div>
       </SidebarFooter>
     </Sidebar>
