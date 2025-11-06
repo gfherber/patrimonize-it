@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { supabase } from "@/client";
@@ -62,7 +60,9 @@ export default function Historico() {
       // Busca paralela dos nomes de salas e patrimônio
       const salaIds = Array.from(
         new Set(
-          movs.flatMap((m) => [m.sala_origem_id, m.sala_destino_id]).filter(Boolean) as string[]
+          movs
+            .flatMap((m) => [m.sala_origem_id, m.sala_destino_id])
+            .filter(Boolean) as string[]
         )
       );
       const patrIds = Array.from(
@@ -101,9 +101,15 @@ export default function Historico() {
   const filtered = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     const enr = rows.map((m) => {
-      const origem = m.sala_origem_id ? salasMap[m.sala_origem_id]?.nome ?? "Sem sala" : "Sem sala";
-      const destino = m.sala_destino_id ? salasMap[m.sala_destino_id]?.nome ?? "-" : "-";
-      const patrimonio = m.patrimonio_id ? patrMap[m.patrimonio_id]?.numero_patrimonio ?? "-" : "-";
+      const origem = m.sala_origem_id
+        ? salasMap[m.sala_origem_id]?.nome ?? "Sem sala"
+        : "Sem sala";
+      const destino = m.sala_destino_id
+        ? salasMap[m.sala_destino_id]?.nome ?? "-"
+        : "-";
+      const patrimonio = m.patrimonio_id
+        ? patrMap[m.patrimonio_id]?.numero_patrimonio ?? "-"
+        : "-";
       return { ...m, origem, destino, patrimonio };
     });
 
@@ -119,66 +125,80 @@ export default function Historico() {
     );
   }, [rows, salasMap, patrMap, searchTerm]);
 
-  // --- UI (sempre centralizado) ---
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-full max-w-6xl px-6 py-6">
-        <PageHeader
-          title="Histórico de Movimentações"
-          description="Acompanhe todas as movimentações de equipamentos"
-        />
+    <div className="w-full flex justify-center bg-[#F8FAFC] min-h-screen">
+        <div className="w-full max-w-6xl px-6 py-2 mt-2">
+        {/* Cabeçalho institucional */}
+        <header className="mb-8 border-b border-gray-200 pb-4">
+          <h1 className="text-3xl font-bold text-[#0056A6]">
+            Histórico de Movimentações
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Acompanhe todas as movimentações de equipamentos em tempo real.
+          </p>
+        </header>
 
-        <div className="space-y-6 mt-4">
-          {/* Busca */}
-          <Card className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por patrimônio, sala, motivo ou responsável..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </Card>
+        {/* Barra de busca */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-3 mb-8">
+          <Search className="text-gray-400" size={20} />
+          <Input
+            placeholder="Buscar por patrimônio, sala, motivo ou responsável..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-none shadow-none focus-visible:ring-0 text-gray-700"
+          />
+        </div>
 
-          {/* Tabela */}
-          <Card>
-            <Table>
-              <TableHeader>
+        {/* Tabela */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+          <Table>
+            <TableHeader className="bg-[#E6F0FA] text-[#0056A6] text-sm font-semibold">
+              <TableRow>
+                <TableHead className="px-6 py-3">Data/Hora</TableHead>
+                <TableHead className="px-6 py-3">Patrimônio</TableHead>
+                <TableHead className="px-6 py-3">Origem</TableHead>
+                <TableHead className="px-6 py-3">Destino</TableHead>
+                <TableHead className="px-6 py-3">Motivo</TableHead>
+                <TableHead className="px-6 py-3">Responsável</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="text-gray-700 text-sm">
+              {filtered.length === 0 ? (
                 <TableRow>
-                  <TableHead>Data/Hora</TableHead>
-                  <TableHead>Patrimônio</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead>Destino</TableHead>
-                  <TableHead>Motivo</TableHead>
-                  <TableHead>Responsável</TableHead>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-gray-400 py-8"
+                  >
+                    Nenhuma movimentação encontrada.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                      Nenhuma movimentação encontrada
+              ) : (
+                filtered.map((m) => (
+                  <TableRow
+                    key={m.id}
+                    className="border-t hover:bg-[#F3F8FF] transition-all"
+                  >
+                    <TableCell className="font-medium px-6 py-3">
+                      {format(new Date(m.created_at), "dd/MM/yyyy HH:mm", {
+                        locale: ptBR,
+                      })}
+                    </TableCell>
+                    <TableCell className="px-6 py-3">
+                      {m.patrimonio || "-"}
+                    </TableCell>
+                    <TableCell className="px-6 py-3">{m.origem}</TableCell>
+                    <TableCell className="px-6 py-3">{m.destino}</TableCell>
+                    <TableCell className="max-w-xs truncate px-6 py-3">
+                      {m.motivo || "-"}
+                    </TableCell>
+                    <TableCell className="px-6 py-3">
+                      {m.usuario_responsavel || "-"}
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filtered.map((m) => (
-                    <TableRow key={m.id}>
-                      <TableCell className="font-medium">
-                        {format(new Date(m.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </TableCell>
-                      <TableCell>{m.patrimonio || "-"}</TableCell>
-                      <TableCell>{m.origem}</TableCell>
-                      <TableCell>{m.destino}</TableCell>
-                      <TableCell className="max-w-xs truncate">{m.motivo || "-"}</TableCell>
-                      <TableCell>{m.usuario_responsavel || "-"}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

@@ -1,216 +1,180 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Pencil, Trash2, Key, Package } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
-  Menu,
-  Home,
-  CalendarDays,
-  Monitor,
-  Boxes,
-  Library,
-  History,
-} from "lucide-react";
-import { FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { PatrimonioForm } from "@/components/PatrimonioForm";
 
-export function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
+export default function Patrimonios() {
+  const { toast } = useToast();
+  const [patrimonios, setPatrimonios] = useState<any[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPatrimonio, setSelectedPatrimonio] = useState<any>(null);
 
-  const pageTitles: Record<string, string> = {
-    "/": "Bem-vindo ao Sistema de Gestão de TI",
-    "/planejamento": "Planejamento",
-    "/painel": "Painel de Aulas",
-    "/patrimonios": "Patrimônios",
-    "/salas": "Salas",
-    "/historico": "Histórico",
+  useEffect(() => {
+    fetchPatrimonios();
+  }, []);
+
+  async function fetchPatrimonios() {
+    const { data, error } = await supabase
+      .from("patrimonios")
+      .select(`
+        *,
+        salas ( nome )
+      `)
+      .order("tipo");
+
+    if (error) {
+      toast({
+        title: "Erro ao carregar patrimônios",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setPatrimonios(data || []);
+    }
+  }
+
+  const handleEdit = (patrimonio: any) => {
+    setSelectedPatrimonio(patrimonio);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este patrimônio?")) return;
+
+    const { error } = await supabase.from("patrimonios").delete().eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Erro ao excluir patrimônio",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({ title: "Patrimônio excluído com sucesso!" });
+      fetchPatrimonios();
+    }
+  };
+
+  const handleSuccess = () => {
+    fetchPatrimonios();
+    setDialogOpen(false);
+    setSelectedPatrimonio(null);
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50 overflow-hidden">
-      {/* Sidebar recolhível */}
-      <aside
-        className={`h-full bg-white border-r shadow-sm transition-all duration-300 ease-in-out flex flex-col
-          ${sidebarOpen ? "w-64" : "w-20"}
-        `}
-      >
-        {/* Cabeçalho */}
-        <div
-          className={`p-4 border-b flex items-center ${
-            sidebarOpen ? "justify-between" : "justify-center"
-          }`}
-        >
-          {/* Logo + Título */}
-          {sidebarOpen && (
-            <div className="flex items-center gap-2 overflow-hidden transition-all duration-300">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold flex-shrink-0">
-                TI
-              </div>
-              <div className="whitespace-nowrap">
-                <h1 className="font-bold text-lg leading-tight">Patrimônio TI</h1>
-                <p className="text-xs text-gray-500">Sistema de Gestão</p>
-              </div>
-            </div>
-          )}
-
-          {/* Botão sanduíche */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md"
-            aria-label="Alternar menu lateral"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+    <div className="w-full flex flex-col items-center justify-start min-h-screen bg-gray-50 px-6 py-10">
+      <div className="w-full max-w-6xl flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-[#0056A6] mb-1">Patrimônios</h1>
+          <p className="text-gray-600">
+            Gerencie equipamentos e itens de TI da instituição.
+          </p>
         </div>
-
-        {/* Navegação */}
-        <nav className="flex-1 p-3 space-y-2 text-sm">
-          <NavItem to="/" icon={<Home className="w-5 h-5" />} label="Início" open={sidebarOpen} />
-          <NavItem
-            to="/planejamento"
-            icon={<CalendarDays className="w-5 h-5" />}
-            label="Planejamento"
-            open={sidebarOpen}
-          />
-          <NavItem
-            to="/painel"
-            icon={<Monitor className="w-5 h-5" />}
-            label="Painel"
-            open={sidebarOpen}
-          />
-          <NavItem
-            to="/patrimonios"
-            icon={<Boxes className="w-5 h-5" />}
-            label="Patrimônios"
-            open={sidebarOpen}
-          />
-          <NavItem
-            to="/salas"
-            icon={<Library className="w-5 h-5" />}
-            label="Salas"
-            open={sidebarOpen}
-          />
-          <NavItem
-            to="/historico"
-            icon={<History className="w-5 h-5" />}
-            label="Histórico"
-            open={sidebarOpen}
-          />
-        </nav>
-
-        {/* Rodapé com redes sociais */}
-        <footer className="p-3 text-center text-xs text-gray-400 border-t">
-          {sidebarOpen ? (
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex gap-4 text-gray-500">
-                <a
-                  href="https://www.instagram.com/gf_herber/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-pink-500 transition-transform transform hover:scale-110"
-                >
-                  <FaInstagram size={18} />
-                </a>
-                <a
-                  href="https://github.com/gfherber"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-gray-900 transition-transform transform hover:scale-110"
-                >
-                  <FaGithub size={18} />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/gabriel-herber/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-blue-600 transition-transform transform hover:scale-110"
-                >
-                  <FaLinkedin size={18} />
-                </a>
-              </div>
-              <p>Desenvolvido por Gabriel Herber</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <a
-                href="https://www.instagram.com/gf_herber/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-pink-500 transition-transform transform hover:scale-110"
-              >
-                <FaInstagram size={16} />
-              </a>
-              <a
-                href="https://github.com/gfherber"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-900 transition-transform transform hover:scale-110"
-              >
-                <FaGithub size={16} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/gabriel-herber/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-600 transition-transform transform hover:scale-110"
-              >
-                <FaLinkedin size={16} />
-              </a>
-              <p>©</p>
-            </div>
-          )}
-        </footer>
-      </aside>
-
-      {/* Conteúdo principal */}
-      <div
-        className={`flex flex-col flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${
-          sidebarOpen ? "ml-0" : "ml-[60px]"
-        }`}
-      >
-        {/* Topbar */}
-        <header className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-30 shadow-sm">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-gray-800">
-              {pageTitles[location.pathname] || ""}
-            </h1>
-          </div>
-        </header>
-
-        {/* Conteúdo */}
-        <main className="flex-1 flex justify-center px-6 py-8">
-          <div className="w-full max-w-7xl">
-            <Outlet />
-          </div>
-        </main>
+        <Button
+          onClick={() => setDialogOpen(true)}
+          className="bg-[#0056A6] hover:bg-[#004b93] text-white shadow-sm"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Novo Patrimônio
+        </Button>
       </div>
-    </div>
-  );
-}
 
-/* 🔹 Componente NavItem */
-function NavItem({
-  to,
-  icon,
-  label,
-  open,
-}: {
-  to: string;
-  icon: JSX.Element;
-  label: string;
-  open: boolean;
-}) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex items-center gap-3 rounded-md px-3 py-2 transition-colors duration-200 ${
-          isActive && open
-            ? "bg-blue-100 text-blue-700 font-medium"
-            : "text-gray-700 hover:bg-blue-50"
-        }`
-      }
-    >
-      {icon}
-      {open && <span className="whitespace-nowrap">{label}</span>}
-    </NavLink>
+      {patrimonios.length === 0 ? (
+        <Card className="w-full max-w-4xl bg-white border border-gray-200 shadow-sm text-center py-16">
+          <CardContent>
+            <p className="text-gray-500 text-lg">
+              Nenhum patrimônio cadastrado ainda.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 w-full max-w-6xl sm:grid-cols-2 lg:grid-cols-3">
+          {patrimonios.map((p) => (
+            <Card
+              key={p.id}
+              className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <CardHeader className="pb-2 flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-[#0056A6]">
+                  {p.tipo || "Sem tipo"}
+                </CardTitle>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(p)}
+                    className="hover:bg-blue-50"
+                  >
+                    <Pencil className="h-4 w-4 text-[#0056A6]" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(p.id)}
+                    className="hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-gray-700">
+                <p className="text-gray-800 font-medium">
+                  {p.marca} {p.modelo && `(${p.modelo})`}
+                </p>
+                {p.salas?.nome && (
+                  <p className="flex items-center gap-1 text-gray-600">
+                    <Key className="w-4 h-4 text-[#0056A6]" />
+                    <span>Sala: {p.salas.nome}</span>
+                  </p>
+                )}
+                <p className="flex items-center gap-1 text-gray-600">
+                  <Package className="w-4 h-4 text-[#0056A6]" />
+                  <span>
+                    Status:{" "}
+                    <Badge
+                      variant="outline"
+                      className={`${
+                        p.status === "ativo"
+                          ? "bg-green-100 text-green-700 border-green-200"
+                          : "bg-gray-100 text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {p.status}
+                    </Badge>
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[#0056A6] text-xl font-semibold">
+              {selectedPatrimonio ? "Editar Patrimônio" : "Novo Patrimônio"}
+            </DialogTitle>
+          </DialogHeader>
+          <PatrimoniosForm
+            patrimonio={selectedPatrimonio}
+            onSuccess={handleSuccess}
+            onCancel={() => {
+              setDialogOpen(false);
+              setSelectedPatrimonio(null);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

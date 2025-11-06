@@ -1,27 +1,22 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabaseClient"
 
 interface Turma {
-  id: string;
-  curso: string;
-  dias_semana: string[];
-  hora_inicio: string;
-  hora_fim: string;
-  sala_id: string | null;
-  salas?: {
-    nome: string;
-  };
+  id: string
+  curso: string
+  sala_id: string
+  dia_semana: string
+  hora_inicio: string
+  hora_fim: string
 }
 
 export default function PainelTV() {
-  const [turmasAtuais, setTurmasAtuais] = useState<Turma[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [horaAtual, setHoraAtual] = useState(new Date());
+  const [turmasAtuais, setTurmasAtuais] = useState<Turma[]>([])
+  const [loading, setLoading] = useState(true)
 
   async function fetchTurmasAtuais() {
-    const agora = new Date();
-    const dias = [
+    const agora = new Date()
+    const diasSemana = [
       "domingo",
       "segunda",
       "terça",
@@ -29,130 +24,80 @@ export default function PainelTV() {
       "quinta",
       "sexta",
       "sábado",
-    ];
-    const diaSemana = dias[agora.getDay()];
-    const hora = agora.toTimeString().slice(0, 5);
+    ]
+    const diaAtual = diasSemana[agora.getDay()]
+    const horaAtual = agora.toTimeString().slice(0, 5)
 
     const { data, error } = await supabase
       .from("turmas")
-      .select(
-        `
-        id,
-        curso,
-        dias_semana,
-        hora_inicio,
-        hora_fim,
-        sala_id,
-        salas (nome)
-      `
-      )
-      .lte("hora_inicio", hora)
-      .gte("hora_fim", hora);
+      .select("*")
+      .ilike("dia_semana", `%${diaAtual}%`)
+      .lte("hora_inicio", horaAtual)
+      .gte("hora_fim", horaAtual)
 
-    if (error) console.error("Erro ao buscar turmas:", error);
-    else {
-      const filtradas =
-        data?.filter((t) => t.dias_semana?.includes(diaSemana)) || [];
-      setTurmasAtuais(filtradas);
-    }
-
-    setLoading(false);
+    if (!error) setTurmasAtuais(data || [])
+    setLoading(false)
   }
 
   useEffect(() => {
-    fetchTurmasAtuais();
-    const intervalo = setInterval(() => {
-      setHoraAtual(new Date());
-      fetchTurmasAtuais();
-    }, 60000);
-
-    const sub = supabase
-      .channel("turmas-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "turmas" },
-        fetchTurmasAtuais
-      )
-      .subscribe();
-
-    return () => {
-      clearInterval(intervalo);
-      supabase.removeChannel(sub);
-    };
-  }, []);
-
-  const horaFormatada = horaAtual.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const dataFormatada = horaAtual.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-  });
+    fetchTurmasAtuais()
+    const interval = setInterval(fetchTurmasAtuais, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-900 flex flex-col items-center p-10">
-      {/* Cabeçalho */}
-      <header className="flex justify-between items-center w-full max-w-5xl mb-10">
-        <div>
-          <h1 className="text-5xl font-bold text-blue-700 flex items-center gap-3">
-            Encontre sua Sala!
-          </h1>
-          <p className="text-gray-500 text-xl capitalize">{dataFormatada}</p>
-        </div>
-        <div className="text-4xl font-semibold text-blue-600">{horaFormatada}</div>
-      </header>
+    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-50 text-gray-900 flex flex-col items-center justify-start p-8">
+      <h1 className="text-5xl font-bold text-[#0056A6] mb-4">
+        Encontre sua Sala!
+      </h1>
 
-      {/* Conteúdo */}
+      <p className="text-lg text-gray-500 mb-6 capitalize">
+        {new Date().toLocaleDateString("pt-BR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+        })}
+      </p>
+
       {loading ? (
-        <p className="text-gray-500 text-xl mt-20">Carregando turmas...</p>
+        <p className="text-gray-400 text-lg">Carregando turmas...</p>
       ) : turmasAtuais.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center mt-20"
-        >
-          <p className="text-3xl font-medium text-gray-400">
-            Nenhuma turma em andamento.
-          </p>
-        </motion.div>
+        <p className="text-gray-400 text-2xl font-medium">
+          Nenhuma turma em andamento.
+        </p>
       ) : (
         <div className="grid gap-6 w-full max-w-5xl">
-          {turmasAtuais.map((t, i) => (
-            <motion.div
+          {turmasAtuais.map((t) => (
+            <div
               key={t.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white border border-gray-200 shadow-md rounded-2xl p-8 hover:shadow-lg transition"
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md hover:shadow-lg transition"
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-3xl font-semibold text-blue-700">
+                  <h2 className="text-3xl font-bold text-[#0056A6]">
                     {t.curso}
                   </h2>
-                  <p className="text-gray-600 text-lg mt-1">
-                    Dias: {t.dias_semana.join(", ")}
+                  <p className="text-gray-500 text-lg capitalize">
+                    Dias: {t.dia_semana}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-blue-600">
-                    Sala {t.salas?.nome || t.sala_id || "—"}
+                  <p className="text-2xl font-semibold text-gray-800">
+                    Sala {t.sala_id}
                   </p>
-                  <p className="text-gray-500 text-lg mt-1">
-                    {t.hora_inicio} – {t.hora_fim}
+                  <p className="text-gray-500 text-lg">
+                    {t.hora_inicio?.slice(0, 5)} – {t.hora_fim?.slice(0, 5)}
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       )}
 
-      <footer className="mt-16 text-gray-400 text-sm">
+      <footer className="mt-10 text-sm text-gray-400">
         Atualização em tempo real ⚡ — {turmasAtuais.length} turma(s)
       </footer>
     </div>
-  );
+  )
 }
