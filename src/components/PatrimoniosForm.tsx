@@ -13,7 +13,7 @@ import {
 import { supabase } from "@/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface PatrimonioFormProps {
+interface PatrimoniosFormProps {
   patrimonio?: any;
   onSuccess: () => void;
   onCancel: () => void;
@@ -39,7 +39,7 @@ const statusOptions = [
   { value: "descartado", label: "Descartado" },
 ];
 
-export function PatrimonioForm({ patrimonio, onSuccess, onCancel }: PatrimonioFormProps) {
+export function PatrimoniosForm({ patrimonio, onSuccess, onCancel }: PatrimoniosFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [salas, setSalas] = useState<any[]>([]);
@@ -207,3 +207,5 @@ export function PatrimonioForm({ patrimonio, onSuccess, onCancel }: PatrimonioFo
     </form>
   );
 }
+
+export default PatrimoniosForm;

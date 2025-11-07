@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Pencil, Trash2, Package } from "lucide-react";
 import { supabase } from "@/client";
 import { useToast } from "@/hooks/use-toast";
-import { PatrimonioForm } from "@/components/PatrimoniosForm";
+import PatrimoniosForm from "@/components/PatrimoniosForm";
 
 export default function Patrimonios() {
   const { toast } = useToast();
@@ -170,7 +170,7 @@ export default function Patrimonios() {
               {selectedPatrimonio ? "Editar Patrimônio" : "Novo Patrimônio"}
             </DialogTitle>
           </DialogHeader>
-          <PatrimonioForm
+          <PatrimoniosForm
             patrimonio={selectedPatrimonio}
             onSuccess={handleSuccess}
             onCancel={() => setDialogOpen(false)}

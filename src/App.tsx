@@ -4,7 +4,7 @@ import { Toaster as Sonner, toast } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { Layout } from "./components/Layout"
+import Layout from "./components/Layout"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { supabase } from "./client"
 
@@ -21,11 +21,13 @@ import NotFound from "./pages/NotFound"
 const queryClient = new QueryClient()
 
 const App = () => {
-  // 🧠 Teste automático de conexão com o Supabase
   useEffect(() => {
     async function testarConexao() {
       console.log("🔍 Supabase URL:", import.meta.env.VITE_SUPABASE_URL)
-      console.log("🔑 Supabase Key:", import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 8) + "...")
+      console.log(
+        "🔑 Supabase Key:",
+        import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 8) + "..."
+      )
 
       const { data, error } = await supabase.from("salas").select("*")
 
